@@ -7,23 +7,24 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      senderWalletId,
-      receiverWalletId,
-      amount,
-      currency,
-    } = body;
+  const {
+  senderWalletId,
+  receiverWalletId,
+  amount,
+  currency,
+} = body;
 
-    if (!senderWalletId || !receiverWalletId  !amount || !currency) {
-      return NextResponse.json(
-        {
-          message: "All fields are required",
-        },
-        {
-          status: 400,
-        }
-      );
+if (!senderWalletId  !receiverWalletId  !amount || !currency) {
+  return NextResponse.json(
+    {
+      message: "All fields are required",
+    },
+    {
+      status: 400,
     }
+  );
+}
+
 
     // Sender wallet find
     const senderWallet = await prisma.wallet.findUnique({
