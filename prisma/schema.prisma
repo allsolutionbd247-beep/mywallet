@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  phone String?
+  password       String
+  emailVerified  Boolean  @default(false)
+  accountStatus  String   @default("active")
+  createdAt      DateTime @default(now())
+
+  profile        Profile?
+  kyc            KYC?
+  wallets        Wallet[]
+  transactions   Transaction[]
+}
+
+model Profile {
+  id           String @id @default(cuid())
+  userId       String @unique
+  fullName     String
+  dateOfBirth  String
+  address      String
+  kycVerified Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model KYC {
+  id            String @id @default(cuid())
+  userId        String @unique
+  status        String @default("pending")
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Wallet {
+  id          String @id @default(cuid())
+  userId      String
+  walletId    String @unique
+  currency    String
+  balance     Float @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id               String   @id @default(cuid())
+
+  userId           String
+
+  senderWalletId   String
+
+  receiverWalletId String
+
+  token            String   @unique
+
+  type             String
+
+  amount           Float
+
+  currency         String
+
+  status           String   @default("completed")
+
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
