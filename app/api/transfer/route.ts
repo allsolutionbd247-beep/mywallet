@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       currency,
     } = body;
 
-    if (!senderWalletId  !receiverWalletId  !amount || !currency) {
+    if (!senderWalletId || !receiverWalletId  !amount || !currency) {
       return NextResponse.json(
         {
           message: "All fields are required",
