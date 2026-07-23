@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -43,9 +44,12 @@ export default function Header() {
           🌐 English
         </button>
 
-        <button className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white">
-          Login
-        </button>
+        <Link
+  href="/login"
+  className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white"
+>
+  Login
+</Link>
 
       </div>
 
@@ -73,9 +77,12 @@ className="relative z-[110] text-3xl text-white"
       <a href="/">Payments</a>
       <a href="/">Security</a>
 
-      <button className="rounded-full bg-blue-600 px-5 py-2">
-        Login
-      </button>
+      <Link
+  href="/login"
+  className="rounded-full bg-blue-600 px-5 py-2 text-center"
+>
+  Login
+</Link>
     </div>
   </div>
 )}

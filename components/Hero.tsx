@@ -1,3 +1,4 @@
+import Link from "next/link";
 import WalletCard from "@/components/WalletCard";
 
 export default function Hero() {
@@ -53,9 +54,12 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex gap-4">
-            <button className="rounded-full bg-blue-600 px-8 py-3 font-semibold">
-              GET STARTED
-            </button>
+            <Link
+           href="/register"
+           className="rounded-full bg-blue-600 px-8 py-3 font-semibold"
+        >
+           GET STARTED
+         </Link>
 
             <button className="rounded-full border border-white px-8 py-3">
               Learn More

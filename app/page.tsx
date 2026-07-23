@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import WalletCard from "@/components/WalletCard";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
+import Link from "next/link";
 
 
 export default function Home() {
