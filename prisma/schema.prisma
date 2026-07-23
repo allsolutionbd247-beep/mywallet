@@ -2,77 +2,88 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  phone String?
-  password       String
-  emailVerified  Boolean  @default(false)
-  accountStatus  String   @default("active")
-  createdAt      DateTime @default(now())
+  id       String  @id @default(cuid())
+  email    String  @unique
+  phone    String?
+  password String
 
-  profile        Profile?
-  kyc            KYC?
-  wallets        Wallet[]
-  transactions   Transaction[]
+  emailVerified Boolean  @default(false)
+  accountStatus String   @default("active")
+  createdAt     DateTime @default(now())
+
+  profile Profile?
+  kyc     KYC?
+
+  wallets            Wallet[]
+  transactions       Transaction[]
+  verificationTokens VerificationToken[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Profile {
-  id           String @id @default(cuid())
-  userId       String @unique
-  fullName     String
-  dateOfBirth  String
-  address      String
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  fullName    String
+  dateOfBirth String
+  address     String
   kycVerified Boolean @default(false)
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model KYC {
-  id            String @id @default(cuid())
-  userId        String @unique
-  status        String @default("pending")
-  createdAt     DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Wallet {
-  id          String @id @default(cuid())
-  userId      String
-  walletId    String @unique
-  currency    String
-  balance     Float @default(0)
+  id       String @id @default(cuid())
+  userId   String
+  walletId String @unique
+  currency String
+  balance  Float  @default(0)
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Transaction {
-  id               String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  userId           String
+  userId String
 
-  senderWalletId   String
+  senderWalletId String
 
   receiverWalletId String
 
-  token            String   @unique
+  token String @unique
 
-  type             String
+  type String
 
-  amount           Float
+  amount Float
 
-  currency         String
+  currency String
 
-  status           String   @default("completed")
+  status String @default("completed")
 
-  createdAt        DateTime @default(now())
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }

@@ -1,126 +1,23 @@
 "use client";
+
 import { useState } from "react";
+import Header from "@/components/Header";
+import WalletCard from "@/components/WalletCard";
+import Hero from "@/components/Hero";
+import Stats from "@/components/Stats";
+
+
 export default function Home() {
   const [showCookie, setShowCookie] = useState(true);
+
   return (
     <main className="min-h-screen bg-[#06152f] text-white">
 
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-5 md:px-12">
-        <div className="text-2xl font-bold">
-          💳 My Wallet
-        </div>
+      <Header />
 
-        <nav className="hidden md:flex gap-8 text-sm text-gray-200">
-          <a href="#">Home</a>
-          <a href="#">Wallet</a>
-          <a href="#">Transfer</a>
-          <a href="#">Exchange</a>
-          <a href="#">Security</a>
-          <a href="#">Support</a>
-        </nav>
+      <Hero />
 
-        <div className="flex items-center gap-3">
-          <button className="rounded-full border border-white/30 px-4 py-2">
-            🌐 English
-          </button>
-
-          <button className="rounded-full bg-blue-500 px-5 py-2">
-            Login
-          </button>
-        </div>
-      </header>
-
-
-      {/* Hero Section */}
-      <section
-        className="relative mx-6 overflow-hidden rounded-3xl bg-cover bg-center md:mx-12"
-        style={{
-          backgroundImage: "url('/photo_MYPAY.jpg')",
-        }}
-      >
-
-        <div className="absolute inset-0 bg-black/50"></div>
-
-        <div className="relative z-10 grid min-h-[650px] items-center px-8 md:grid-cols-2 md:px-16">
-
-          <div>
-            <h1 className="text-5xl font-bold leading-tight md:text-6xl">
-              Smart Digital Wallet
-              <br />
-              For Global Payments
-            </h1>
-
-            <p className="mt-6 max-w-lg text-lg text-gray-200">
-              Send money, manage your wallet and enjoy secure digital
-              payments with My Wallet.
-            </p>
-
-
-            <div className="mt-8 flex gap-4">
-              <button className="rounded-full bg-blue-600 px-8 py-3 font-semibold">
-                Create Account
-              </button>
-
-              <button className="rounded-full border border-white px-8 py-3">
-                Learn More
-              </button>
-            </div>
-
-          </div>
-
-
-          {/* USD Card */}
-          <div className="flex justify-center">
-
-            <div className="w-[340px] rounded-3xl border border-white/30 bg-white/10 p-6 shadow-2xl backdrop-blur-xl">
-
-              <p className="text-gray-300">
-                My Wallet
-              </p>
-
-              <h2 className="mt-5 text-4xl font-bold">
-                $0.00
-              </h2>
-
-              <p className="mt-2 text-gray-300">
-                USD Balance
-              </p>
-
-
-              <div className="mt-8 rounded-2xl bg-black/20 p-4">
-
-                <p className="text-sm text-gray-300">
-                  Account ID
-                </p>
-
-                <p className="text-xl font-semibold">
-                  U8766544
-                </p>
-
-              </div>
-
-
-              <div className="mt-5 flex justify-between text-sm">
-                <span>
-                  🔒 Secure
-                </span>
-
-                <span>
-                  ✓ Active
-                </span>
-              </div>
-
-
-            </div>
-
-          </div>
-
-
-        </div>
-
-      </section>
-
+      <Stats />
 
 
       {/* Features */}
@@ -136,7 +33,7 @@ export default function Home() {
           {[
             "Global Payment",
             "Fast Transfer",
-            "Bank Level Security",
+            "Swiff Bank Level Security",
             "24/7 Support",
           ].map((item) => (
             <div
