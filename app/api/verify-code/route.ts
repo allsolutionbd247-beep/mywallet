@@ -9,8 +9,12 @@ export async function POST(req: Request) {
 
     if (!email || !code) {
       return NextResponse.json(
-        { error: "Email and code required" },
-        { status: 400 }
+        {
+          error: "Email and verification code required",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -22,8 +26,12 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
+        {
+          error: "User not found",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
@@ -37,15 +45,23 @@ export async function POST(req: Request) {
 
     if (!verificationToken) {
       return NextResponse.json(
-        { error: "Invalid verification code" },
-        { status: 400 }
+        {
+          error: "Invalid verification code",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
     if (verificationToken.expiresAt < new Date()) {
       return NextResponse.json(
-        { error: "Verification code expired" },
-        { status: 400 }
+        {
+          error: "Verification code expired",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -73,8 +89,12 @@ export async function POST(req: Request) {
     console.log(error);
 
     return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
+      {
+        error: "Server error",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

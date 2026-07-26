@@ -88,6 +88,9 @@ export default function DashboardHeader() {
         {/* Logout */}
 
         <button
+        onClick={() => {
+  window.location.href = "/login";
+}}
           className="
             px-5
             py-2.5

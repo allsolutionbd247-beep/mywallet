@@ -27,12 +27,13 @@ model User {
 
 model VerificationToken {
   id        String   @id @default(cuid())
-  token     String   @unique
+  code      String   @unique
   userId    String
   expiresAt DateTime
 
   user User @relation(fields: [userId], references: [id])
 }
+
 
 model Profile {
   id          String  @id @default(cuid())

@@ -5,14 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "postinstall": "prisma generate",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "lucide-react": "^1.26.0",
-    "next": "latest",
+    "next": "^16.2.9",
     "nodemailer": "^9.0.3",
     "prisma": "^6.19.0",
     "react": "latest",

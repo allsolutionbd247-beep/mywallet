@@ -9,10 +9,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login submission logic here
-  };
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    window.location.href = "/dashboard";
+  } else {
+    alert(data.error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#007a43] flex flex-col justify-between p-6">

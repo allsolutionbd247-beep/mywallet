@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface StepThreeProps {
   email: string;
@@ -8,7 +8,12 @@ interface StepThreeProps {
   onVerify: (e: React.FormEvent) => void;
   onBack: () => void;
 }
+function formatTime(seconds: number) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
 
+  return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+}
 export default function StepThree({
   email,
   otpCode,
@@ -17,6 +22,18 @@ export default function StepThree({
   onVerify,
   onBack,
 }: StepThreeProps) {
+  const [timeLeft, setTimeLeft] = useState(600);
+
+useEffect(() => {
+  if (timeLeft <= 0) return;
+
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [timeLeft]);
+
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-gray-900/80 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl relative">
       
