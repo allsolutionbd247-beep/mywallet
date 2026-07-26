@@ -27,7 +27,7 @@ export default function Stats() {
   ];
 
   return (
-    <section className="px-6 py-16 md:px-12">
+    <section className="px-6 py-16 md:px-12 bg-[#111827]">
       <div
         className="
           grid
@@ -38,11 +38,11 @@ export default function Stats() {
         {stats.map((item, index) => (
           <div
             key={index}
-            className="
+           className="
               rounded-3xl
               border
-              border-white/20
-              bg-white/10
+              border-emerald-500/30
+              bg-emerald-900/40
               p-6
               text-white
               shadow-xl

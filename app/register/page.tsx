@@ -1,327 +1,141 @@
 "use client";
-
+import LanguageSection from "@/components/LanguageSection";
 import { useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import StepOne from "@/components/StepOne";
+import StepTwo from "@/components/StepTwo";
+import StepThree from "@/components/StepThree";
+import Tilt from 'react-parallax-tilt';
 
 export default function RegisterPage() {
-  const [showPasswordHint, setShowPasswordHint] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const [country, setCountry] = useState("Bangladesh");
+  const [currency, setCurrency] = useState("BDT");
+  const [inviteCode, setInviteCode] = useState("");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmError, setConfirmError] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-
-  const validateEmail = (value: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!regex.test(value)) {
-      setEmailError("Please enter a valid email address");
-    } else {
-      setEmailError("");
-    }
-  };
-
-  const validatePassword = (value: string) => {
-    let errors = [];
-
-    if (value.length < 10) {
-      errors.push("Minimum 10 characters");
-    }
-
-    if (!/[A-Z]/.test(value)) {
-      errors.push("One uppercase letter required");
-    }
-
-    if (!/[a-z]/.test(value)) {
-      errors.push("One lowercase letter required");
-    }
-
-    if (!/[0-9]/.test(value)) {
-      errors.push("One number required");
-    }
-
-    if (!/[!@#$%^&*]/.test(value)) {
-      errors.push("One special symbol required");
-    }
-
-    setPasswordError(errors.join(", "));
-  };
-
-  const validateConfirmPassword = (value: string) => {
-    if (value !== password) {
-      setConfirmError("Password does not match");
-    } else {
-      setConfirmError("");
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!termsAccepted) {
-      return;
-    }
-if (!captchaToken) {
-  setEmailError("Please complete the CAPTCHA");
-  return;
-}
-    if (
-      emailError ||
-      passwordError ||
-      confirmError ||
-      !email ||
-      !password ||
-      !confirmPassword
-    ) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-       body: JSON.stringify({
-       email,
-       password,
-       captchaToken,
-      }),
-      
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error);
-      }
-
-      setSuccessMessage(data.message);
-
-    } catch (error: any) {
-      setEmailError(error.message);
-    } finally {
-      setLoading(false);
-    }
+    setCurrentStep(2);
   };
 
+  const handleNextStep2 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    setCurrentStep(3);
+  };
+const handlePrevStep = () => {
+    setCurrentStep(1);
+  };
+  
+  const [otpCode, setOtpCode] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleVerify = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccessMessage("Account successfully created!");
+  };
+
+  const handlePrevStep2 = () => {
+    setCurrentStep(2);
+  };
   return (
-<main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6 py-12 text-white">
+    <>
+      <LanguageSection />
 
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl" />
-
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl">
-
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">
-            Create Account
-          </h1>
-
-          <p className="mt-3 text-sm text-gray-300">
-            Create your secure My Wallet account
-          </p>
-        </div>
-
-
-        <form
-          onSubmit={handleRegister}
-          className="mt-8 space-y-5"
+      <main className="min-h-screen bg-[#006a3b] flex items-center justify-center p-3 sm:p-6 text-white perspective-1000">
+        <Tilt
+          tiltMaxAngleX={5} 
+          tiltMaxAngleY={5} 
+          scale={1.01} 
+          transitionSpeed={1500}
+          perspective={1000}
+          glareEnable={true}
+          glareColor="#ffffff"
+          glareMaxOpacity={0.1}
+          glarePosition="all"
+          className="w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden"
         >
+          <div className="w-full grid grid-cols-1 md:grid-cols-12 border border-white/20">
+            
+            <div className="md:col-span-5 bg-[#005a31] p-6 sm:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/25">
+              <div>
+                <div className="flex items-center gap-2 mb-6 sm:mb-12">
+                  <span className="text-xl sm:text-2xl font-black tracking-wider text-white">
+                    <span className="text-amber-300">M</span>y Wallet
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-3 sm:gap-4 mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-bold text-base sm:text-lg bg-white text-[#006a3b] shadow-lg border border-white/40">
+                    {currentStep}
+                  </div>
+                </div>
 
-          {/* Email */}
-          <div>
-            <label className="text-sm text-gray-300">
-              Email Address
-            </label>
-
-            <input
-              type="email"
-              placeholder="Enter email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                validateEmail(e.target.value);
-              }}
-              className="mt-2 w-full rounded-xl border border-white/20 bg-black/30 px-4 py-3 text-white outline-none"
-            />
-
-            {emailError && (
-              <p className="mt-2 text-sm text-red-500">
-                ❌ {emailError}
-              </p>
-            )}
-          </div>
-
-
-          {/* Password */}
-          <div>
-
-            <label className="text-sm text-gray-300">
-              Password
-            </label>
-
-            <input
-              type="password"
-              placeholder="Create password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                validatePassword(e.target.value);
-              }}
-              onFocus={() => setShowPasswordHint(true)}
-              onBlur={() => setShowPasswordHint(false)}
-              className="mt-2 w-full rounded-xl border border-white/20 bg-black/30 px-4 py-3 text-white outline-none"
-            />
-
-
-            {showPasswordHint && (
-              <div className="mt-3 rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-gray-300">
-
-                <p className="mb-2 text-white">
-                  Password Requirements:
+                <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 text-white">
+                  {currentStep === 1 ? "Account setup" : "Login details"}
+                </h2>
+                <p className="text-white/80 text-xs sm:text-sm">
+                  {currentStep === 1 
+                    ? "My Wallet terms and services depend on your country of residence." 
+                    : "Choose a safe password. Your email address will be verified in the next step."}
                 </p>
-
-                <ul className="space-y-1">
-
-                  <li className={password.length >= 10 ? "text-green-400" : "text-red-400"}>
-                    {password.length >= 10 ? "✓" : "✗"} Minimum 10 characters
-                  </li>
-
-                  <li className={/[A-Z]/.test(password) ? "text-green-400" : "text-red-400"}>
-                    {/[A-Z]/.test(password) ? "✓" : "✗"} Uppercase letter
-                  </li>
-
-                  <li className={/[a-z]/.test(password) ? "text-green-400" : "text-red-400"}>
-                    {/[a-z]/.test(password) ? "✓" : "✗"} Lowercase letter
-                  </li>
-
-                  <li className={/[0-9]/.test(password) ? "text-green-400" : "text-red-400"}>
-                    {/[0-9]/.test(password) ? "✓" : "✗"} Number
-                  </li>
-
-                  <li className={/[!@#$%^&*]/.test(password) ? "text-green-400" : "text-red-400"}>
-                    {/[!@#$%^&*]/.test(password) ? "✓" : "✗"} Special symbol
-                  </li>
-
-                </ul>
               </div>
-            )}
 
+              <div className="hidden md:block text-xs text-white/60 mt-8">
+                Secure Encrypted System v2.6
+              </div>
+            </div>
 
-            {passwordError && (
-              <p className="mt-2 text-sm text-red-500">
-                ❌ {passwordError}
-              </p>
-            )}
+            <div className="md:col-span-7 p-6 sm:p-8 md:p-12 flex flex-col justify-between bg-[#007a43]">
+              {currentStep === 1 && (
+                <StepOne 
+                  country={country}
+                  setCountry={setCountry}
+                  currency={currency}
+                  setCurrency={setCurrency}
+                  inviteCode={inviteCode}
+                  setInviteCode={setInviteCode}
+                  onNext={handleNextStep1}
+                />
+              )}
 
-          </div>
-
-
-          {/* Confirm Password */}
-          <div>
-
-            <label className="text-sm text-gray-300">
-              Confirm Password
-            </label>
-<input
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                validateConfirmPassword(e.target.value);
-              }}
-              className="mt-2 w-full rounded-xl border border-white/20 bg-black/30 px-4 py-3 text-white outline-none"
-            />
-
-            {confirmError && (
-              <p className="mt-2 text-sm text-red-500">
-                ❌ {confirmError}
-              </p>
-            )}
-
-          </div>
-          <ReCAPTCHA
-  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-  onChange={(token) => {
-    setCaptchaToken(token || "");
-  }}
-/>
-{/* Terms & Conditions */}
-
-          <div className="flex items-start gap-3 text-sm text-gray-300">
-
-            <input
-              type="checkbox"
-              checked={termsAccepted}
-              onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="mt-1 h-4 w-4"
-            />
-
-            <p>
-              I agree to My Wallet Terms & Conditions
-            </p>
+              {currentStep === 2 && (
+                <StepTwo 
+                  email={email}
+                  setEmail={setEmail}
+                  password={password}
+setPassword={setPassword}
+                  confirmPassword={confirmPassword}
+                  setConfirmPassword={setConfirmPassword}
+                  agreedTerms={agreedTerms}
+                  setAgreedTerms={setAgreedTerms}
+                  onNext={handleNextStep2}
+                  onBack={handlePrevStep}
+                />
+              )}
+              {currentStep === 3 && (
+                <StepThree 
+                  email={email}
+                  otpCode={otpCode}
+                  setOtpCode={setOtpCode}
+                  successMessage={successMessage}
+                  onVerify={handleVerify}
+                  onBack={handlePrevStep2}
+                />
+              )}
+            </div>
 
           </div>
-
-
-          {/* Create Account Button */}
-
-          <button
-            type="submit"
-            disabled={!termsAccepted}
-            className={
-              termsAccepted
-                ? "w-full rounded-full bg-blue-600 py-3 font-semibold hover:bg-blue-700"
-                : "w-full rounded-full bg-gray-600 py-3 font-semibold opacity-50 cursor-not-allowed"
-            }
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-
-
-        </form>
-
-
-        {successMessage && (
-          <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/20 p-3 text-center text-sm text-green-300">
-            ✅ {successMessage}
-          </div>
-        )}
-
-
-        <div className="mt-6 rounded-xl border border-green-400/20 bg-green-400/10 p-3 text-center text-xs text-gray-200">
-
-          ✉️ Your account will be activated after email verification
-
-        </div>
-
-
-        <p className="mt-6 text-center text-sm text-gray-400">
-
-          Already have an account?
-
-          <span className="ml-1 text-blue-400">
-            Login
-          </span>
-
-        </p>
-
-
-      </div>
-
-    </main>
+        </Tilt>
+      </main>
+    </>
   );
 }
-
