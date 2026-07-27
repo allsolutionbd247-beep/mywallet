@@ -42,7 +42,7 @@ export default function DashboardSidebar() {
       className={`
         ${collapsed ? "w-20" : "w-64"}
         min-h-full
-        bg-[#10B981]
+        bg-[#007a43]
         text-white
         shadow-xl
         flex

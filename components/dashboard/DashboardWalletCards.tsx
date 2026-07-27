@@ -75,7 +75,7 @@ export default function DashboardWalletCards() {
         return (
           <div
             key={wallet.id}
-            className="w-[90%] max-w-[560px] bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden transition-all duration-500"
+           className="w-[90%] max-w-[560px] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-500"
           >
             {/* FRONT SIDE */}
             {!isFlipped ? (
