@@ -34,9 +34,7 @@ export default function RegisterPage() {
 
 
   // STEP 2 -> CREATE ACCOUNT + SEND OTP
-  const handleNextStep2 = async (e: React.FormEvent) => {
-
-    e.preventDefault();
+const handleNextStep2 = async () => {
 
 
     if (password !== confirmPassword) {
@@ -78,11 +76,12 @@ export default function RegisterPage() {
 
         setCurrentStep(3);
 
-      } else {
-
-        setSuccessMessage(data.error);
-
-      }
+      } 
+      else {
+  setSuccessMessage(
+    data.error || "This email is already registered"
+  );
+}
 
 
     } catch (error) {
@@ -295,6 +294,8 @@ export default function RegisterPage() {
 
                   agreedTerms={agreedTerms}
                   setAgreedTerms={setAgreedTerms}
+
+                  successMessage={successMessage}
 
                   onNext={handleNextStep2}
 

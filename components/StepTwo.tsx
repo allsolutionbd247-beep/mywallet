@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 interface StepTwoProps {
   email: string;
   setEmail: (val: string) => void;
+
   password: string;
   setPassword: (val: string) => void;
+
   confirmPassword: string;
   setConfirmPassword: (val: string) => void;
+
   agreedTerms: boolean;
   setAgreedTerms: (val: boolean) => void;
-  onNext: (e: React.FormEvent) => void;
+
+  successMessage: string;
+
+  onNext: () => void;
   onBack: () => void;
 }
 
@@ -24,205 +31,420 @@ export default function StepTwo({
   setConfirmPassword,
   agreedTerms,
   setAgreedTerms,
+  successMessage,
   onNext,
   onBack,
 }: StepTwoProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [showPasswordHint, setShowPasswordHint] = useState(false);
-  const hasMinLength = password.length >= 8;
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  const isPasswordValid = hasMinLength && hasUpperCase && hasLowerCase && hasSpecialChar;
-  
-  // Captcha states
+
+  const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showCaptcha, setShowCaptcha] = useState(false);
-  const [captchaInput, setCaptchaInput] = useState("");
-  const [currentCaptchaCode, setCurrentCaptchaCode] = useState("");
-  const [captchaError, setCaptchaError] = useState(false);
+  const captchaRef = useRef<ReCAPTCHA>(null);
 
-  // Function to generate a random 4-digit code
-  const generateRandomCaptcha = () => {
-    const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
-    setCurrentCaptchaCode(randomCode);
-    setCaptchaInput("");
-    setCaptchaError(false);
-  };
 
-  const handleInitialNext = (e: React.FormEvent) => {
+  // Email Validation
+  const emailValid =
+  /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com)$/i.test(email);
+
+
+
+
+  // Password Rules
+
+  const hasLength =
+    password.length >= 8 && password.length <= 12;
+
+  const hasUpperCase =
+    /[A-Z]/.test(password);
+
+  const hasLowerCase =
+    /[a-z]/.test(password);
+
+  const hasNumber =
+    /\d/.test(password);
+
+  const hasSpecialChar =
+    /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+
+  const passwordValid =
+    hasLength &&
+    hasUpperCase &&
+    hasLowerCase &&
+    hasNumber &&
+    hasSpecialChar;
+
+
+
+  // Confirm Password
+
+  const passwordMatch =
+    password.length > 0 &&
+    password === confirmPassword;
+
+
+
+  // Google reCAPTCHA Success
+
+ const handleCaptchaSuccess = (token: string | null) => {
+  if (token) {
+    setCaptchaVerified(true);
+    onNext();
+  }
+};
+
+
+  // Next Button Submit
+
+  const handleSubmit = (e: React.FormEvent) => {
+
     e.preventDefault();
-    generateRandomCaptcha(); // Generate new random code when Next is clicked
-    setShowCaptcha(true);
-  };
 
-  const handleCaptchaVerify = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (captchaInput !== currentCaptchaCode) {
-      setCaptchaError(true);
+    if(
+      !emailValid ||
+      !passwordValid ||
+      !passwordMatch ||
+      !agreedTerms
+    ){
       return;
     }
-    setCaptchaError(false);
-    onNext(e);
+
+   setShowCaptcha(true);
   };
-
   return (
-    <form onSubmit={handleInitialNext} className="flex flex-col justify-between h-full space-y-4 bg-[#1e293b] p-6 rounded-3xl border border-white/10 shadow-xl backdrop-blur-xl">
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg sm:text-xl font-bold text-white">Register details</h3>
-          <button 
-            type="button" 
-            onClick={onBack}
-            className="flex items-center gap-1 text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition text-white border border-white/20 shrink-0 cursor-pointer"
-          >
-            <span>←</span> Back
-          </button>
-        </div>
+  <form
+    onSubmit={handleSubmit}
+    className="flex flex-col justify-between h-full bg-[#007a43] p-6 rounded-3xl border border-white/10 shadow-xl backdrop-blur-xl"
+  >
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Email Address</label>
-            <input 
-              type="email" 
-              required
-              name="email"
-              autoComplete="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-400"
-            />
-          </div>
+    <div>
 
-          {/* Password Field with Show/Hide & Browser Hints */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Password</label>
-            <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                required
-                name="password"
-                autoComplete="current-password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 pr-10 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-400"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer focus:outline-none"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
-{/* Confirm Password Field with Show/Hide & Browser Hints */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1">Confirm Password</label>
-            <div className="relative">
-              <input 
-                type={showConfirmPassword ? "text" : "password"} 
-                required
-                name="confirmPassword"
-                autoComplete="new-password"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-3 pr-10 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-400"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs cursor-pointer focus:outline-none"
-              >
-                {showConfirmPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
 
-          <div className="flex items-center gap-2 pt-1">
-            <input 
-              type="checkbox" 
-              id="terms" 
-              checked={agreedTerms} 
-              onChange={(e) => setAgreedTerms(e.target.checked)}
-              className="w-4 h-4 rounded accent-amber-400 cursor-pointer"
-            />
-            <label htmlFor="terms" className="text-xs sm:text-sm text-white/80 cursor-pointer">
-              I agree to the terms and privacy policy
-            </label>
-          </div>
-        </div>
-      </div>
+        <h3 className="text-xl font-bold text-white">
+          Register Details
+        </h3>
 
-      <div className="pt-4">
-        <button 
-          type="submit"
-          disabled={!agreedTerms}
-          className={`w-full py-3.5 font-bold text-sm rounded-xl transition shadow-lg mt-2 ${
-            agreedTerms 
-              ? "bg-amber-500 hover:bg-amber-600 text-gray-950 cursor-pointer" 
-              : "bg-amber-500/20 text-white/40 cursor-not-allowed"
-          }`}
+
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-xs px-3 py-1.5 rounded-lg 
+          bg-white/10 hover:bg-white/20 
+          text-white border border-white/20 transition"
         >
-          Next
+          ← Back
         </button>
+
       </div>
 
-      {/* Captcha Modal with Random Code */}
-      {showCaptcha && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 rounded-2xl">
-          <div className="bg-gray-900 border border-white/10 p-6 rounded-2xl w-full max-w-sm space-y-4 shadow-2xl">
-            <h4 className="text-white font-bold text-base text-center">Security Verification</h4>
-            <p className="text-xs text-gray-400 text-center">Please enter the code shown below to continue.</p>
-            
-            <div className="flex items-center justify-between bg-white/10 border border-white/20 px-4 py-3 rounded-lg">
-              <span className="tracking-widest text-amber-400 font-mono font-bold text-xl select-none">
-                {currentCaptchaCode}
-              </span>
-              <button 
-                type="button" 
-                onClick={generateRandomCaptcha}
-                className="text-xs text-gray-300 hover:text-white underline cursor-pointer"
-              >
-                Refresh
-              </button>
-            </div>
 
-            <input 
-              type="text"
-              required
-              maxLength={4}
-              placeholder="Enter 4-digit code"
-              value={captchaInput}
-              onChange={(e) => setCaptchaInput(e.target.value)}
-              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white text-center text-lg tracking-widest placeholder-gray-500 focus:outline-none focus:border-amber-400"
+
+      <div className="space-y-4">
+
+
+
+        {/* Email */}
+
+        <div>
+
+          <label className="text-xs text-gray-300">
+            Email Address
+          </label>
+
+
+          <div className="relative">
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="
+              w-full h-11 px-4 pr-10
+              bg-black/20
+              border border-white/30
+              rounded-lg
+              text-white text-sm
+              outline-none
+              focus:border-green-400
+              "
             />
 
-            {captchaError && (
-              <p className="text-xs text-red-400 text-center">Invalid verification code! Try again.</p>
+
+            {email.length > 0 && (
+
+              <span className="absolute right-3 top-3">
+
+                {emailValid ? 
+                "✓" : "✗"}
+
+              </span>
+
             )}
-<div className="flex gap-2 pt-2">
-              <button 
-                type="button"
-                onClick={() => setShowCaptcha(false)}
-                className="w-1/2 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button 
-                type="button"
-                onClick={handleCaptchaVerify}
-                className="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-600 text-gray-950 text-xs font-bold rounded-lg transition cursor-pointer"
-              >
-                Verify & Next
-              </button>
-            </div>
+
           </div>
+
+
+          {email.length > 0 && !emailValid && (
+
+            <p className="text-xs text-red-400 mt-1">
+              Invalid email address
+            </p>
+
+          )}
+
         </div>
-      )}
-    </form>
-  );
+
+
+
+
+
+        {/* Password */}
+
+        <div
+          onMouseEnter={()=>setShowPasswordHint(true)}
+          onMouseLeave={()=>setShowPasswordHint(false)}
+        >
+
+          <label className="text-xs text-gray-300">
+            Password
+          </label>
+
+
+          <div className="relative">
+
+
+            <input
+              type={showPassword ? "text":"password"}
+              value={password}
+              onFocus={()=>setShowPasswordHint(true)}
+              onChange={(e)=>setPassword(e.target.value)}
+              placeholder="Enter password"
+              className="
+              w-full h-11 px-4 pr-16
+              bg-black/20
+              border border-white/30
+              rounded-lg
+              text-white text-sm
+              outline-none
+              focus:border-green-400
+              "
+            />
+
+
+            <button
+              type="button"
+              onClick={()=>setShowPassword(!showPassword)}
+              className="
+              absolute right-3 top-3
+              text-xs text-gray-300
+              "
+            >
+              {showPassword ? "Hide":"Show"}
+            </button>
+
+
+          </div>
+
+
+
+          {/* Password Hint */}
+
+          {showPasswordHint && (
+
+            <div className="
+            mt-2 p-3 rounded-lg
+            bg-black/40
+            border border-white/10
+            text-xs space-y-1
+            ">
+
+
+              <p className={hasLength ? "text-green-400" : "text-red-400"}>
+  {hasLength ? "✓" : "✗"} 8-12 characters
+</p>
+
+<p className={hasUpperCase ? "text-green-400" : "text-red-400"}>
+  {hasUpperCase ? "✓" : "✗"} Uppercase letter
+</p>
+
+<p className={hasLowerCase ? "text-green-400" : "text-red-400"}>
+  {hasLowerCase ? "✓" : "✗"} Lowercase letter
+</p>
+
+<p className={hasNumber ? "text-green-400" : "text-red-400"}>
+  {hasNumber ? "✓" : "✗"} Number
+</p>
+
+<p className={hasSpecialChar ? "text-green-400" : "text-red-400"}>
+  {hasSpecialChar ? "✓" : "✗"} Special character
+</p>
+
+
+
+            </div>
+
+          )}
+
+        </div>
+
+
+
+
+
+
+        {/* Confirm Password */}
+
+        <div>
+
+
+          <label className="text-xs text-gray-300">
+            Confirm Password
+          </label>
+
+
+          <div className="relative">
+<input
+              type={showConfirmPassword ? "text":"password"}
+              value={confirmPassword}
+              onChange={(e)=>setConfirmPassword(e.target.value)}
+              placeholder="Confirm password"
+              className="
+              w-full h-11 px-4 pr-16
+              bg-black/20
+              border border-white/30
+              rounded-lg
+              text-white text-sm
+              outline-none
+              focus:border-green-400
+              "
+            />
+
+
+            <button
+              type="button"
+              onClick={()=>setShowConfirmPassword(!showConfirmPassword)}
+              className="
+              absolute right-3 top-3
+              text-xs text-gray-300
+              "
+            >
+              {showConfirmPassword ? "Hide":"Show"}
+            </button>
+
+
+          </div>
+
+
+
+          {confirmPassword.length > 0 && (
+
+            <p className={`text-xs mt-1 ${
+              passwordMatch 
+              ? "text-green-400"
+              : "text-red-400"
+            }`}>
+
+              {passwordMatch
+              ? "✓ Passwords match"
+              : "✗ Passwords do not match"}
+
+            </p>
+
+          )}
+
+        </div>
+
+
+
+
+
+
+        {/* Terms */}
+
+        <div className="flex items-center gap-2">
+
+
+          <input
+            type="checkbox"
+            checked={agreedTerms}
+            onChange={(e)=>setAgreedTerms(e.target.checked)}
+            className="accent-green-400 w-4 h-4"
+          />
+
+
+          <span className="text-xs text-white/80">
+            I agree to the Terms & Privacy Policy
+          </span>
+
+
+        </div>
+
+
+
+      </div>
+
+    </div>
+
+
+
+
+
+
+    {/* Google Recaptcha */}
+
+   {showCaptcha && (
+  <div className="mt-5">
+    <ReCAPTCHA
+  ref={captchaRef}
+  sitekey="6LcDH2ItAAAAAN4zPwGi74xV6TwciIhG2RuK1PQP"
+ onChange={handleCaptchaSuccess}
+  
+/>
+
+  </div>
+)}
+
+
+
+{/* Buttons */}
+<div className="mt-5">
+
+  <button
+    type="submit"
+    disabled={
+      !agreedTerms ||
+      !emailValid ||
+      !passwordValid ||
+      !passwordMatch 
+    }
+    className={`
+    w-full h-11 rounded-xl
+    font-bold text-sm transition
+    ${
+      agreedTerms &&
+      emailValid &&
+      passwordValid &&
+      passwordMatch 
+      
+      ?
+      "bg-amber-400 hover:bg-amber-500 text-gray-950"
+      :
+      "bg-white/10 text-white/40 cursor-not-allowed"
+    }
+    `}
+  >
+    Next
+  </button>
+
+</div>
+    
+
+  </form>
+);
 }
