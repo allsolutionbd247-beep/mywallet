@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
 
-    const { email, password, captchaToken } = body;
+    const { email, password, currency, country, captchaToken } = body;
     console.log("REGISTER DATA:", {
   email,
   password,
@@ -64,6 +64,7 @@ console.log("EXISTING USER CHECK:", existingUser);
       data: {
         email,
         password,
+        currency,
         emailVerified: false,
       },
     });

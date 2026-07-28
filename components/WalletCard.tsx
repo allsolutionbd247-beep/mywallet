@@ -1,4 +1,6 @@
 export default function WalletCard() {
+
+
   return (
     <div className="flex w-full justify-end px-4 md:justify-center">
       <div

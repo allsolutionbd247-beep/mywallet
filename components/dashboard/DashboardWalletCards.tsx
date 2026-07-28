@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Eye,
   EyeOff,
@@ -25,47 +25,59 @@ export default function DashboardWalletCards() {
   const [showBalance, setShowBalance] = useState(true);
   const [openWallet, setOpenWallet] = useState<string | null>(null);
   const [flippedWallet, setFlippedWallet] = useState<string | null>(null);
+  const [showMoreActivity, setShowMoreActivity] = useState(false);
+  const [openSettings, setOpenSettings] = useState<string | null>(null);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
 
-  const [wallets, setWallets] = useState<Wallet[]>([
-    {
-      id: "BDT577654",
-      name: "BDT Wallet",
-      balance: "৳ 0.00",
-      isPrimary: true,
-    },
-    {
-      id: "U98726653",
-      name: "USD Wallet",
-      balance: "$ 0.00",
-      isPrimary: false,
-    },
-    {
-      id: "E65544675",
-      name: "EUR Wallet",
-      balance: "€ 0.00",
-      isPrimary: false,
-    },
-  ]);
+  useEffect(() => {
+ const fetchWallet = async () => {
+  try {
+    const userId = localStorage.getItem("userId");
+
+    const response = await fetch(`/api/wallet?userId=${userId}`);
+
+    const data = await response.json();
+
+        if (data.wallets) {
+          setWallets(
+            data.wallets.map((wallet: any) => ({
+              id: wallet.walletId,
+              name: `${wallet.currency} Wallet`,
+              balance: wallet.balance.toString(),
+              isPrimary: wallet.isPrimary,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Wallet fetch error:", error);
+      }
+    };
+
+    fetchWallet();
+  }, []);
 
   const handleAddWallet = () => {
-  const additionalWallets = wallets.filter((w) => !w.isPrimary).length;
+    const additionalWallets = wallets.filter((w) => !w.isPrimary).length;
 
-  if (additionalWallets >= 2) {
-    alert("You can only add up to 2 additional wallets (Total 3)!");
-    return;
-  }
-  alert("Open Add Wallet Modal");
-};
+    if (additionalWallets >= 2) {
+      alert("You can only add up to 2 additional wallets (Total 3)!");
+      return;
+    }
+
+    alert("Open Add Wallet Modal");
+  };
 
   const handleDeleteWallet = (id: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this wallet?"
     );
+
     if (confirmDelete) {
       setWallets(wallets.filter((w) => w.id !== id));
       setFlippedWallet(null);
     }
   };
+
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center gap-5 mt-8 py-8 rounded-3xl bg-gradient-to-br from-green-50 via-white to-emerald-100 shadow-inner">
@@ -88,9 +100,9 @@ export default function DashboardWalletCards() {
                         {wallet.name}
                       </h2>
                       {wallet.isPrimary && (
-                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                        <button className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                           Primary
-                        </span>
+                        </button>
                       )}
                     </div>
 
@@ -173,18 +185,74 @@ export default function DashboardWalletCards() {
             ) : (
               /* BACK SIDE */
               <div className="p-5 flex flex-col justify-between min-h-[240px]">
+                
                 <div>
-                  <div className="flex justify-between items-center mb-3 border-b pb-2">
-                    <h3 className="font-semibold text-gray-800">
-                      {wallet.name} Management
-                    </h3>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                      Settings
-                    </span>
-                  </div>
+                  
+                 <div className="flex justify-between items-center mb-3 border-b pb-2">
 
+  <h3 className="font-semibold text-gray-800">
+  {openSettings === wallet.id
+    ? "Wallet Activity"
+    : `${wallet.name} Management`}
+</h3>
+
+  {openSettings === wallet.id ? (
+    <button
+      onClick={() => setOpenSettings(null)}
+      className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium hover:bg-green-200 transition cursor-pointer"
+    >
+      🔄 Back
+    </button>
+  ) : (
+    <button
+      onClick={() =>
+        setOpenSettings(
+          openSettings === wallet.id ? null : wallet.id
+        )
+      }
+      className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium hover:bg-green-200 transition cursor-pointer"
+    >
+      Settings
+    </button>
+  )}
+
+</div>
+{openSettings === wallet.id && (
+  <div className="mt-3 rounded-xl bg-gray-100 p-3 max-h-[150px] overflow-y-auto">
+
+    <p className="text-sm font-semibold text-gray-800">
+      Wallet Activity
+    </p>
+
+    <div className="mt-3 space-y-2">
+
+      <div className="rounded-lg bg-white p-3 shadow-sm">
+        <p className="text-sm font-semibold text-gray-800">
+          USD Wallet Created
+        </p>
+        <p className="text-xs text-gray-500">
+          27 July 2026 • 10:30 PM
+        </p>
+      </div>
+
+    </div>
+<button
+  onClick={() => setShowMoreActivity(!showMoreActivity)}
+  className="mt-3 text-xs font-medium text-green-700 hover:text-green-800 transition"
+>
+  {showMoreActivity ? "Show Less" : "Show More"}
+</button>
+  </div>
+)}
                   <div className="py-4 flex flex-col items-center justify-center gap-3">
-                    {wallet.isPrimary ? (
+
+      <button
+       className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition text-sm shadow-sm"
+   >
+      History
+   </button>
+
+   {wallet.isPrimary ? (
                       <button
                         onClick={handleAddWallet}
                         className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition text-sm shadow-sm"

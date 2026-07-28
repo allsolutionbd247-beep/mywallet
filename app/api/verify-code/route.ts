@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { generateWalletId } from "@/lib/wallet-generator";
 
 const prisma = new PrismaClient();
 
@@ -73,6 +74,26 @@ export async function POST(req: Request) {
         emailVerified: true,
       },
     });
+    const existingWallet = await prisma.wallet.findFirst({
+  where: {
+    userId: user.id,
+    isPrimary: true,
+  },
+});
+
+if (!existingWallet) {
+  const walletId = generateWalletId(user.currency);
+
+  await prisma.wallet.create({
+    data: {
+      userId: user.id,
+      walletId,
+      currency: user.currency,
+      balance: 0,
+      isPrimary: true,
+    },
+  });
+}
 
     await prisma.verificationToken.delete({
       where: {

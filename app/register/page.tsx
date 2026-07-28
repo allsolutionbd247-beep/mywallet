@@ -58,12 +58,13 @@ const handleNextStep2 = async () => {
           "Content-Type": "application/json",
         },
 
-        body: JSON.stringify({
-          email,
-          password,
-          captchaToken: "test",
-        }),
-
+       body: JSON.stringify({
+  email,
+  password,
+  currency,
+  country,
+  captchaToken: "test",
+})
       });
 
 

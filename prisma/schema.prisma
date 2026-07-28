@@ -15,6 +15,7 @@ model User {
 
   emailVerified Boolean  @default(false)
   accountStatus String   @default("active")
+  currency String @default("BDT")
   createdAt     DateTime @default(now())
 
   profile Profile?
@@ -61,6 +62,7 @@ model Wallet {
   walletId String @unique
   currency String
   balance  Float  @default(0)
+  isPrimary Boolean @default(false)
 
   user User @relation(fields: [userId], references: [id])
 }

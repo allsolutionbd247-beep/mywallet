@@ -109,3 +109,46 @@ export async function POST(request: Request) {
 
   }
 }
+// GET USER WALLETS
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          message: "User ID required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const wallets = await prisma.wallet.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      wallets,
+    });
+
+  } catch (error) {
+
+    console.error("GET WALLET ERROR:", error);
+
+    return NextResponse.json(
+      {
+        message: "Wallet fetch error",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
+}

@@ -25,11 +25,12 @@ export default function LoginPage() {
 
   const data = await res.json();
 
-  if (res.ok) {
-    window.location.href = "/dashboard";
-  } else {
-    alert(data.error);
-  }
+if (res.ok) {
+  localStorage.setItem("userId", data.user.id);
+  window.location.href = "/dashboard";
+} else {
+  alert(data.error);
+}
 };
 
   return (

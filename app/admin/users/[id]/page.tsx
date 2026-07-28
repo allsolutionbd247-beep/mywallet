@@ -1,174 +1,54 @@
-export default function UserDetailsPage() {
+export default function UserLedgerPage() {
+  const ledgerHistory = [
+    { id: 1, type: "Cash In", desc: "bKash Gateway Deposit", amount: 1000, sign: "+", balance: 1000, class: "text-emerald-600" },
+    { id: 2, type: "Receive", desc: "Received from Karim", amount: 500, sign: "+", balance: 1500, class: "text-emerald-600" },
+    { id: 3, type: "Send Money", desc: "Sent Money to Rahim", amount: 300, sign: "-", balance: 1200, class: "text-rose-600" },
+    { id: 4, type: "Charge", desc: "Send Money Platform Fee", amount: 5, sign: "-", balance: 1195, class: "text-rose-600" },
+  ];
+
   return (
-    <div className="content">
-
-      {/* User Header */}
-      <div className="card">
-        <h1>👤 User Control Center</h1>
-        <p><b>User ID:</b> #001</p>
-        <p><b>Name:</b> Rahim</p>
-        <p><b>Status:</b> 🟢 Active</p>
+    <div className="space-y-6 p-6">
+      {/* User Bio Header */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">Rahim Ahmed (#USR-1024)</h2>
+          <p className="text-sm text-gray-500 mt-1">Phone: +8801711223344 | KYC: Verified | Password Changed: 3 days ago</p>
+        </div>
+        <div className="text-right">
+          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">Active Account</span>
+          <p className="text-lg font-extrabold text-blue-600 mt-2">Calculated Balance: ৳ 1,195</p>
+        </div>
       </div>
 
-
-      <div className="cards">
-
-        {/* User Overview */}
-        <div className="card">
-          <h2>👤 User Overview</h2>
-
-          <p>Name: Rahim</p>
-          <p>Phone: 017XXXXXXXX</p>
-          <p>Email: rahim@gmail.com</p>
-          <p>Join Date: 12 July 2026</p>
-
-          <button className="edit-btn">
-            Edit Profile
-          </button>
-        </div>
-
-
-        {/* Wallet Management */}
-        <div className="card">
-          <h2>💰 Wallet Management</h2>
-
-          <p>Balance: ৳50,000</p>
-          <p>Total Deposit: ৳1,20,000</p>
-          <p>Total Withdraw: ৳70,000</p>
-
-          <button className="edit-btn">
-            Add Money
-          </button>
-
-          <button className="edit-btn">
-            Adjust Balance
-          </button>
-        </div>
-
-
-        {/* Security Control */}
-        <div className="card">
-          <h2>🔐 Security Control</h2>
-
-          <button className="edit-btn">
-            Reset Password
-          </button>
-
-          <button className="edit-btn">
-            Reset PIN
-          </button>
-
-          <button className="edit-btn">
-            Force Logout
-          </button>
-        </div>
-
-
-        {/* Account Control */}
-        <div className="card">
-          <h2>⚙️ Account Control</h2>
-
-          <p>Status: Active</p>
-
-          <button className="edit-btn">
-            Block User
-          </button>
-
-          <button className="edit-btn">
-            Unblock User
-          </button>
-        </div>
-
-      </div>
-
-
-      {/* Transaction History */}
-      <div className="card">
-
-        <h2>📄 Transaction History</h2>
-
-        <table className="user-table">
-
+      {/* Running Ledger & Math Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-6">
+        <h3 className="font-bold text-gray-800 mb-4 text-base">Complete User Transaction Ledger (Running Math)</h3>
+        
+        <table className="w-full text-left border-collapse text-sm">
           <thead>
-            <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Action</th>
+            <tr className="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider">
+              <th className="p-3.5">Type</th>
+              <th className="p-3.5">Description</th>
+              <th className="p-3.5">In / Out Amount</th>
+              <th className="p-3.5 text-right">Running Balance</th>
             </tr>
           </thead>
-
-
-          <tbody>
-
-            <tr>
-              <td>12 July</td>
-              <td>Add Money</td>
-              <td>৳5000</td>
-              <td>Success</td>
-
-              <td>
-                <button className="edit-btn">
-                  👁 View
-                </button>
-
-                <button className="edit-btn">
-                  🔄 Reverse
-                </button>
-              </td>
-            </tr>
-
-
-            <tr>
-              <td>10 July</td>
-              <td>Cash Out</td>
-              <td>৳2000</td>
-              <td>Success</td>
-
-              <td>
-                <button className="edit-btn">
-                  👁 View
-                </button>
-
-                <button className="edit-btn">
-                  🔄 Reverse
-                </button>
-              </td>
-            </tr>
-
+          <tbody className="divide-y divide-gray-100">
+            {ledgerHistory.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50/50">
+                <td className="p-3.5 font-bold text-gray-800">{item.type}</td>
+                <td className="p-3.5 text-gray-500 text-xs">{item.desc}</td>
+                <td className={`p-3.5 font-extrabold ${item.class}`}>
+                  {item.sign} ৳ {item.amount}
+                </td>
+                <td className="p-3.5 text-right font-extrabold text-gray-900">
+                  ৳ {item.balance}
+                </td>
+              </tr>
+            ))}
           </tbody>
-
         </table>
-
       </div>
-
-
-      {/* Admin Notes */}
-      <div className="card">
-
-        <h2>📝 Admin Notes</h2>
-
-        <textarea
-          placeholder="Write admin note..."
-          style={{
-            width: "100%",
-            height: "100px",
-            padding: "10px"
-          }}
-        />
-
-        <br />
-        <br />
-
-        <button className="edit-btn">
-          Save Note
-        </button>
-
-      </div>
-
-
     </div>
   );
 }
-
