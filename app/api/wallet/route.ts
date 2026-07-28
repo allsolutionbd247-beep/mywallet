@@ -41,6 +41,14 @@ export async function POST(request: Request) {
         currency: currency,
       },
     });
+    const walletCount = await prisma.wallet.count({
+  where: {
+    userId: userId,
+  },
+});
+
+const isPrimaryWallet = walletCount === 0;
+
 
 
     if (existingWallet) {
@@ -78,8 +86,17 @@ export async function POST(request: Request) {
         walletId: walletNumber,
         currency: currency,
         balance: 0,
+        isPrimary: isPrimaryWallet,
       },
     });
+    await prisma.walletActivity.create({
+  data: {
+    userId: userId,
+    walletId: wallet.walletId,
+    action: "CREATE",
+    details: `${currency} Wallet Created`,
+  },
+});
 
 
     return NextResponse.json(

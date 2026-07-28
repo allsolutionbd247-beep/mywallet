@@ -35,27 +35,35 @@ export default function DashboardWalletCards() {
   const [showMoreActivity, setShowMoreActivity] = useState(false);
   const [openSettings, setOpenSettings] = useState<string | null>(null);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [showAddWallet, setShowAddWallet] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+  const remainingWallets =
+  2 - wallets.filter((w) => !w.isPrimary).length;
+
 
   useEffect(() => {
- const fetchWallet = async () => {
-  try {
-    const userId = localStorage.getItem("userId");
+    const fetchWallet = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
 
-    const response = await fetch(`/api/wallet?userId=${userId}`);
+        const response = await fetch(
+          `/api/wallet?userId=${userId}`
+        );
 
-    const data = await response.json();
+        const data = await response.json();
 
         if (data.wallets) {
-  setWallets(
-    data.wallets.map((wallet: any) => ({
-      id: wallet.walletId,
-      name: `${wallet.currency} Wallet`,
-      balance: wallet.balance.toString(),
-      currency: wallet.currency,
-      isPrimary: wallet.isPrimary,
-    }))
-  );
-}
+          setWallets(
+            data.wallets.map((wallet: any) => ({
+              id: wallet.walletId,
+              name: `${wallet.currency} Wallet`,
+              balance: wallet.balance.toString(),
+              currency: wallet.currency,
+              isPrimary: wallet.isPrimary,
+            }))
+          );
+        }
+
       } catch (error) {
         console.error("Wallet fetch error:", error);
       }
@@ -63,6 +71,7 @@ export default function DashboardWalletCards() {
 
     fetchWallet();
   }, []);
+
 
   const handleAddWallet = () => {
     const additionalWallets = wallets.filter((w) => !w.isPrimary).length;
@@ -72,19 +81,66 @@ export default function DashboardWalletCards() {
       return;
     }
 
-    alert("Open Add Wallet Modal");
+    setShowAddWallet(true);
   };
+const handleCreateWallet = async () => {
+  if (!selectedCurrency) {
+    alert("Please select currency");
+    return;
+  }
 
-  const handleDeleteWallet = (id: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this wallet?"
-    );
+  try {
+    const userId = localStorage.getItem("userId");
 
-    if (confirmDelete) {
-      setWallets(wallets.filter((w) => w.id !== id));
-      setFlippedWallet(null);
+    const response = await fetch("/api/wallet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        currency: selectedCurrency,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.wallet) {
+      setWallets((prev) => [
+        ...prev,
+        {
+          id: data.wallet.walletId,
+          name: `${data.wallet.currency} Wallet`,
+          balance: data.wallet.balance.toString(),
+          currency: data.wallet.currency,
+          isPrimary: data.wallet.isPrimary,
+        },
+      ]);
+
+      setShowAddWallet(false);
+      setSelectedCurrency("");
     }
-  };
+  } catch (error) {
+    console.error("Create wallet error:", error);
+  }
+};
+
+  const handleDeleteWallet = (wallet: Wallet) => {
+
+  if (wallet.isPrimary) {
+    alert("Primary wallet cannot be deleted.");
+    return;
+  }
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this wallet?"
+  );
+
+  if (confirmDelete) {
+    setWallets(wallets.filter((w) => w.id !== wallet.id));
+    setFlippedWallet(null);
+  }
+};
 
 
   return (
@@ -227,7 +283,8 @@ export default function DashboardWalletCards() {
     >
       🔄 Back
     </button>
-  ) : (
+ ) : (
+  wallet.isPrimary && (
     <button
       onClick={() =>
         setOpenSettings(
@@ -238,10 +295,12 @@ export default function DashboardWalletCards() {
     >
       Settings
     </button>
-  )}
+  )
+)}
+
 
 </div>
-{openSettings === wallet.id && (
+{wallet.isPrimary && openSettings === wallet.id && (
   <div className="mt-3 rounded-xl bg-gray-100 p-3 max-h-[150px] overflow-y-auto">
 
     <p className="text-sm font-semibold text-gray-800">
@@ -282,11 +341,13 @@ export default function DashboardWalletCards() {
                         className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition text-sm shadow-sm"
                       >
                         <PlusCircle size={18} />
-                        Add New Wallet (Max 2)
+                        {remainingWallets > 0
+                ? `Add New Wallet (Max ${remainingWallets})`
+                   : "Maximum Wallet Reached"}
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleDeleteWallet(wallet.id)}
+                        onClick={() => handleDeleteWallet(wallet)}
                         className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-xl border border-red-200 flex items-center justify-center gap-2 transition text-sm"
                       >
                         <Trash2 size={18} />
@@ -309,6 +370,62 @@ export default function DashboardWalletCards() {
           </div>
         );
       })}
+
+
+      {showAddWallet && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
+            <h2 className="text-lg font-semibold mb-4">
+              Add New Wallet
+            </h2>
+
+            <select
+              value={selectedCurrency}
+              onChange={(e) => setSelectedCurrency(e.target.value)}
+              className="w-full border rounded-xl p-2 text-sm"
+            >
+              <option value="">Select Currency</option>
+
+   {["BDT", "INR", "EUR", "USD", "NPR", "THB", "PKR", "LKR", "MMK"].map(
+  (currency) => {
+    const primaryWallet = wallets.find(
+      (wallet) => wallet.isPrimary
+    );
+
+    if (primaryWallet?.currency === currency) {
+      return null;
+    }
+
+    return (
+      <option key={currency} value={currency}>
+        {currency}
+      </option>
+    );
+  }
+)}
+            </select>
+
+            <div className="flex gap-2 mt-4">
+          <button
+  onClick={handleCreateWallet}
+  className="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium"
+>
+  Create Wallet
+</button>
+
+             <button
+             onClick={() => setShowAddWallet(false)}
+            className="flex-1 bg-gray-200 py-2 rounded-xl text-sm font-medium text-gray-700"
+          >
+            Cancel
+           </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

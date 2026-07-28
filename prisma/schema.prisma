@@ -23,6 +23,7 @@ model User {
 
   wallets            Wallet[]
   transactions       Transaction[]
+  walletActivities WalletActivity[]
   verificationTokens VerificationToken[]
 }
 
@@ -35,7 +36,19 @@ model VerificationToken {
   user User @relation(fields: [userId], references: [id])
 }
 
+model WalletActivity {
+  id        String   @id @default(cuid())
 
+  userId    String
+  walletId  String
+
+  action    String
+  details   String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
 model Profile {
   id          String  @id @default(cuid())
   userId      String  @unique
@@ -63,6 +76,7 @@ model Wallet {
   currency String
   balance  Float  @default(0)
   isPrimary Boolean @default(false)
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
