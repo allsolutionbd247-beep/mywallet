@@ -18,8 +18,15 @@ interface Wallet {
   id: string;
   name: string;
   balance: string;
+  currency: string;
   isPrimary: boolean;
 }
+const formatCurrency = (amount: number, currency: string) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+  }).format(amount);
+};
 
 export default function DashboardWalletCards() {
   const [showBalance, setShowBalance] = useState(true);
@@ -39,15 +46,16 @@ export default function DashboardWalletCards() {
     const data = await response.json();
 
         if (data.wallets) {
-          setWallets(
-            data.wallets.map((wallet: any) => ({
-              id: wallet.walletId,
-              name: `${wallet.currency} Wallet`,
-              balance: wallet.balance.toString(),
-              isPrimary: wallet.isPrimary,
-            }))
-          );
-        }
+  setWallets(
+    data.wallets.map((wallet: any) => ({
+      id: wallet.walletId,
+      name: `${wallet.currency} Wallet`,
+      balance: wallet.balance.toString(),
+      currency: wallet.currency,
+      isPrimary: wallet.isPrimary,
+    }))
+  );
+}
       } catch (error) {
         console.error("Wallet fetch error:", error);
       }
@@ -128,20 +136,36 @@ export default function DashboardWalletCards() {
                   </button>
                 </div>
 
-                {/* Balance Section */}
-                <div className="px-5 pb-5">
-                  <p className="text-sm text-gray-500">Balance</p>
+              {/* Balance Section */}
+<div className="px-5 pb-5">
+  <p className="text-sm text-gray-500">Balance</p>
 
-                  <div className="flex items-center gap-3 mt-1">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {showBalance ? wallet.balance : "••••••"}
-                    </h1>
+  <div className="flex items-center gap-3 mt-1">
+    <div className="flex items-baseline gap-2">
+      <span className="text-3xl font-bold text-gray-900">
+        {showBalance
+          ? new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: wallet.currency || "USD",
+            })
+              .format(0)
+              .replace("0.00", "")
+          : "•"}
+      </span>
 
-                    <button onClick={() => setShowBalance(!showBalance)}>
-                      {showBalance ? <Eye size={21} /> : <EyeOff size={21} />}
-                    </button>
-                  </div>
-                </div>
+      <span className="text-2xl font-bold text-gray-900">
+        {showBalance
+          ? Number(wallet.balance).toFixed(2)
+          : "••••••"}
+      </span>
+    </div>
+
+    <button onClick={() => setShowBalance(!showBalance)}>
+      {showBalance ? <Eye size={21} /> : <EyeOff size={21} />}
+    </button>
+  </div>
+</div>
+
 {/* Expand Menu */}
                 <div
                   className={`transition-all duration-300 overflow-hidden px-5 ${
