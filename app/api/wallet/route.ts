@@ -126,6 +126,101 @@ const isPrimaryWallet = walletCount === 0;
 
   }
 }
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+
+    const { userId, walletId } = body;
+
+    if (!userId || !walletId) {
+      return NextResponse.json(
+        {
+          message: "User ID and Wallet ID are required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Check wallet exists
+    const wallet = await prisma.wallet.findFirst({
+      where: {
+        userId: userId,
+        walletId: walletId,
+      },
+    });
+
+    if (!wallet) {
+      return NextResponse.json(
+        {
+          message: "Wallet not found.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+
+    // Primary wallet cannot delete
+    if (wallet.isPrimary) {
+      return NextResponse.json(
+        {
+          message: "Primary wallet cannot be deleted.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+
+    // Create activity before deleting
+    await prisma.walletActivity.create({
+      data: {
+        userId: userId,
+        walletId: wallet.walletId,
+        action: "DELETE",
+        details: `${wallet.currency} Wallet Deleted`,
+      },
+    });
+
+
+    // Delete wallet
+    await prisma.wallet.delete({
+      where: {
+        id: wallet.id,
+      },
+    });
+
+
+    return NextResponse.json(
+      {
+        message: "Wallet deleted successfully.",
+      },
+      {
+        status: 200,
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error("DELETE WALLET ERROR:", error);
+
+    return NextResponse.json(
+      {
+        message: "Wallet delete error",
+        error: String(error),
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
 // GET USER WALLETS
 export async function GET(request: Request) {
   try {

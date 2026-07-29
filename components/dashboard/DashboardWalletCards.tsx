@@ -22,10 +22,19 @@ interface Wallet {
   isPrimary: boolean;
 }
 const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
+  const symbols: Record<string, string> = {
+    BDT: "৳",
+    USD: "$",
+    EUR: "€",
+    INR: "₹",
+    NPR: "रु",
+    THB: "฿",
+    PKR: "₨",
+    LKR: "Rs",
+    MMK: "K",
+  };
+
+  return `${symbols[currency] || currency}${Number(amount).toLocaleString()}`;
 };
 
 export default function DashboardWalletCards() {
@@ -37,8 +46,30 @@ export default function DashboardWalletCards() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [showAddWallet, setShowAddWallet] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("");
+  const [showSendMoney, setShowSendMoney] = useState(false);
+  const [receiverMethod, setReceiverMethod] = useState("");
+  const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   const remainingWallets =
   2 - wallets.filter((w) => !w.isPrimary).length;
+  const allCurrencies = [
+  "BDT",
+  "USD",
+  "EUR",
+  "INR",
+  "NPR",
+  "THB",
+  "PKR",
+  "LKR",
+  "MMK",
+];
+
+const usedCurrencies = wallets.map(
+  (wallet) => wallet.currency
+);
+
+const availableCurrencies = allCurrencies.filter(
+  (currency) => !usedCurrencies.includes(currency)
+);
 
 
   useEffect(() => {
@@ -125,8 +156,7 @@ const handleCreateWallet = async () => {
   }
 };
 
-  const handleDeleteWallet = (wallet: Wallet) => {
-
+  const handleDeleteWallet = async (wallet: Wallet) => {
   if (wallet.isPrimary) {
     alert("Primary wallet cannot be deleted.");
     return;
@@ -137,12 +167,41 @@ const handleCreateWallet = async () => {
   );
 
   if (confirmDelete) {
-    setWallets(wallets.filter((w) => w.id !== wallet.id));
-    setFlippedWallet(null);
+    try {
+      const response = await fetch(
+        `/api/wallet?walletId=${wallet.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setWallets(
+          wallets.filter((w) => w.id !== wallet.id)
+        );
+        setFlippedWallet(null);
+      }
+    } catch (error) {
+      console.error("Delete wallet error:", error);
+    }
   }
 };
+const handleCopyWalletId = async (id: string) => {
+  try {
+    await navigator.clipboard.writeText(id);
 
+    setCopiedWalletId(id);
 
+    setTimeout(() => {
+      setCopiedWalletId(null);
+    }, 2000);
+
+  } catch (error) {
+    console.error("Copy error:", error);
+  }
+};
   return (
     <div className="w-full min-h-screen flex flex-col items-center gap-5 mt-8 py-8 rounded-3xl bg-gradient-to-br from-green-50 via-white to-emerald-100 shadow-inner">
       {wallets.map((wallet) => {
@@ -170,9 +229,27 @@ const handleCreateWallet = async () => {
                       )}
                     </div>
 
-                    <p className="text-sm text-gray-500 mt-1">
-                      Wallet ID: {wallet.id}
-                    </p>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+  <span>
+    Wallet ID: {wallet.id}
+  </span>
+
+  <button
+    onClick={() => handleCopyWalletId(wallet.id)}
+    className="text-gray-500 hover:text-green-600 transition cursor-pointer"
+    title="Copy Wallet ID"
+  >
+  <>
+  ⧉
+  {copiedWalletId === wallet.id && (
+  <span className="text-xs text-gray-600 ml-1">
+    Copied
+  </span>
+)}
+</>
+  </button>
+</div>
+
                   </div>
 
                   {/* Top Right Toggle Arrow */}
@@ -198,16 +275,17 @@ const handleCreateWallet = async () => {
 
   <div className="flex items-center gap-3 mt-1">
     <div className="flex items-baseline gap-2">
-      <span className="text-3xl font-bold text-gray-900">
-        {showBalance
-          ? new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: wallet.currency || "USD",
-            })
-              .format(0)
-              .replace("0.00", "")
-          : "•"}
-      </span>
+     <span className="text-3xl font-bold text-gray-900">
+  {showBalance
+    ? formatCurrency(0, wallet.currency)
+        .replace("0", "")
+    : "•"}
+</span>
+<span className="text-2xl font-bold text-gray-900">
+  {showBalance
+    ? Number(wallet.balance).toFixed(2)
+    : "••••••"}
+</span>
 
       <span className="text-2xl font-bold text-gray-900">
         {showBalance
@@ -231,12 +309,15 @@ const handleCreateWallet = async () => {
                   }`}
                 >
                   <div className="flex flex-col gap-2.5 pt-2 border-t border-gray-100">
+                    
                     {/* 1. Send Money */}
-                    <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm text-sm">
-                      <Send size={18} />
-                      Send Money
-                    </button>
-
+<button
+  onClick={() => setShowSendMoney(true)}
+  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm text-sm"
+>
+  <Send size={18} />
+  Send Money
+</button>
                     {/* 2. Request Money */}
                     <button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition text-sm">
                       <ArrowDownLeft size={18} />
@@ -372,60 +453,95 @@ const handleCreateWallet = async () => {
       })}
 
 
-      {showAddWallet && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">
-              Add New Wallet
-            </h2>
+      
+         {showAddWallet && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
 
-            <select
-              value={selectedCurrency}
-              onChange={(e) => setSelectedCurrency(e.target.value)}
-              className="w-full border rounded-xl p-2 text-sm"
-            >
-              <option value="">Select Currency</option>
+      <h2 className="text-lg font-semibold mb-4">
+        Add New Wallet
+      </h2>
 
-   {["BDT", "INR", "EUR", "USD", "NPR", "THB", "PKR", "LKR", "MMK"].map(
-  (currency) => {
-    const primaryWallet = wallets.find(
-      (wallet) => wallet.isPrimary
-    );
+      <select
+        value={selectedCurrency}
+        onChange={(e) => setSelectedCurrency(e.target.value)}
+        className="w-full border rounded-xl p-2 text-sm"
+      >
+        <option value="">
+          Select Currency
+        </option>
 
-    if (primaryWallet?.currency === currency) {
-      return null;
-    }
+        {availableCurrencies.map((currency) => (
+          <option key={currency} value={currency}>
+            {currency}
+          </option>
+        ))}
 
-    return (
-      <option key={currency} value={currency}>
-        {currency}
-      </option>
-    );
-  }
-)}
-            </select>
+      </select>
 
-            <div className="flex gap-2 mt-4">
-          <button
-  onClick={handleCreateWallet}
-  className="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium"
->
-  Create Wallet
-</button>
+      <div className="flex gap-2 mt-4">
 
-             <button
-             onClick={() => setShowAddWallet(false)}
-            className="flex-1 bg-gray-200 py-2 rounded-xl text-sm font-medium text-gray-700"
-          >
-            Cancel
-           </button>
+        <button
+          onClick={handleCreateWallet}
+          className="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium"
+        >
+          Create Wallet
+        </button>
 
-            </div>
+        <button
+          onClick={() => setShowAddWallet(false)}
+          className="flex-1 bg-gray-200 py-2 rounded-xl text-sm font-medium text-gray-700"
+        >
+          Cancel
+        </button>
 
-          </div>
-        </div>
-      )}
+      </div>
 
     </div>
-  );
+  </div>
+)}
+
+
+{showSendMoney && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+    <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
+
+      <h2 className="text-lg font-semibold mb-4">
+        Select Receiver Method
+      </h2>
+
+      <button
+        onClick={() => setReceiverMethod("email")}
+        className="w-full border border-gray-200 rounded-xl py-2 text-sm font-medium hover:bg-emerald-50 transition mb-3"
+      >
+        Email
+      </button>
+
+      <button
+        onClick={() => setReceiverMethod("walletId")}
+        className="w-full border border-gray-200 rounded-xl py-2 text-sm font-medium hover:bg-emerald-50 transition"
+      >
+        Wallet ID
+      </button>
+
+
+      <button
+        onClick={() => {
+          setShowSendMoney(false);
+          setReceiverMethod("");
+        }}
+        className="w-full mt-4 bg-gray-200 py-2 rounded-xl text-sm font-medium text-gray-700"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+)}
+
+
+</div>
+);
 }
