@@ -1,4 +1,5 @@
 "use client";
+import SendMoney from "./SendMoney";
 
 import { useState, useEffect } from "react";
 import {
@@ -48,6 +49,8 @@ export default function DashboardWalletCards() {
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [showSendMoney, setShowSendMoney] = useState(false);
   const [receiverMethod, setReceiverMethod] = useState("");
+  const [rememberReceiverMethod, setRememberReceiverMethod] = useState(false);
+  const [savedReceiverMethod, setSavedReceiverMethod] = useState("");
   const [copiedWalletId, setCopiedWalletId] = useState<string | null>(null);
   const remainingWallets =
   2 - wallets.filter((w) => !w.isPrimary).length;
@@ -286,12 +289,6 @@ const handleCopyWalletId = async (id: string) => {
     ? Number(wallet.balance).toFixed(2)
     : "••••••"}
 </span>
-
-      <span className="text-2xl font-bold text-gray-900">
-        {showBalance
-          ? Number(wallet.balance).toFixed(2)
-          : "••••••"}
-      </span>
     </div>
 
     <button onClick={() => setShowBalance(!showBalance)}>
@@ -454,7 +451,7 @@ const handleCopyWalletId = async (id: string) => {
 
 
       
-         {showAddWallet && (
+      {showAddWallet && (
   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
     <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
 
@@ -503,44 +500,10 @@ const handleCopyWalletId = async (id: string) => {
 
 
 {showSendMoney && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-    <div className="bg-white rounded-2xl p-5 w-[85%] max-w-md shadow-xl">
-
-      <h2 className="text-lg font-semibold mb-4">
-        Select Receiver Method
-      </h2>
-
-      <button
-        onClick={() => setReceiverMethod("email")}
-        className="w-full border border-gray-200 rounded-xl py-2 text-sm font-medium hover:bg-emerald-50 transition mb-3"
-      >
-        Email
-      </button>
-
-      <button
-        onClick={() => setReceiverMethod("walletId")}
-        className="w-full border border-gray-200 rounded-xl py-2 text-sm font-medium hover:bg-emerald-50 transition"
-      >
-        Wallet ID
-      </button>
-
-
-      <button
-        onClick={() => {
-          setShowSendMoney(false);
-          setReceiverMethod("");
-        }}
-        className="w-full mt-4 bg-gray-200 py-2 rounded-xl text-sm font-medium text-gray-700"
-      >
-        Cancel
-      </button>
-
-    </div>
-
-  </div>
+  <SendMoney
+    onClose={() => setShowSendMoney(false)}
+  />
 )}
-
 
 </div>
 );
