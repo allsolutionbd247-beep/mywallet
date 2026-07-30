@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wallet } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -37,12 +38,23 @@ export default function AdminLayout({
             User Management & Ledger
           </Link>
 
+          <Link
+          href="/admin/fund"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-600 hover:text-white"
+>
+  <Wallet size={20} />
 
+  <span>
+    Fund Management
+  </span>
+
+</Link>
 
           <Link
             href="/admin/merchants"
             className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-blue-600 hover:text-white"
           >
+            
             Merchants & Payouts
           </Link>
 

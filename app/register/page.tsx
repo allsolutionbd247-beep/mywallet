@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import StepOne from "@/components/StepOne";
 import StepTwo from "@/components/StepTwo";
 import StepThree from "@/components/StepThree";
-import Tilt from "react-parallax-tilt";
+
+
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,7 +26,9 @@ export default function RegisterPage() {
 
   const [otpCode, setOtpCode] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+  
+const [fullName, setFullName] = useState("");
+const [dateOfBirth, setDateOfBirth] = useState("");
 
   const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,24 +166,10 @@ const handleNextStep2 = async () => {
 
       <main className="min-h-screen bg-[#006a3b] flex items-center justify-center p-3 sm:p-6 text-white perspective-1000">
 
+<div className="w-full max-w-3xl mx-auto rounded-2xl shadow-2xl overflow-hidden">
 
-        <Tilt
-
-          tiltMaxAngleX={5}
-          tiltMaxAngleY={5}
-          scale={1.01}
-          transitionSpeed={1500}
-          perspective={1000}
-
-          glareEnable={true}
-          glareColor="#ffffff"
-          glareMaxOpacity={0.1}
-          glarePosition="all"
-
-          className="w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden"
-
-        >
-
+  <div className="w-full grid grid-cols-1 md:grid-cols-12 border border-white/20">
+  </div>
 
           <div className="w-full grid grid-cols-1 md:grid-cols-12 border border-white/20">
 
@@ -283,6 +272,12 @@ const handleNextStep2 = async () => {
               {currentStep === 2 && (
 
                 <StepTwo
+                
+                  fullName={fullName}
+                  setFullName={setFullName}
+
+                  dateOfBirth={dateOfBirth}
+                  setDateOfBirth={setDateOfBirth}
 
                   email={email}
                   setEmail={setEmail}
@@ -302,6 +297,8 @@ const handleNextStep2 = async () => {
 
                   onBack={handlePrevStep}
 
+                  onLogin={() => router.push("/login")}
+ 
                 />
 
               )}
@@ -337,8 +334,7 @@ const handleNextStep2 = async () => {
           </div>
 
 
-        </Tilt>
-
+        </div>
 
       </main>
 
