@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
 
-    const { email, password, currency, country, captchaToken } = body;
+    const { fullName, email, password, currency, country, dob, captchaToken } = body;
     console.log("REGISTER DATA:", {
   email,
   password,
@@ -62,6 +62,8 @@ console.log("EXISTING USER CHECK:", existingUser);
 
     const user = await prisma.user.create({
       data: {
+        fullName,
+        dob,
         email,
         password,
         currency,
