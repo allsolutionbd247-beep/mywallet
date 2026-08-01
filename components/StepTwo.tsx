@@ -23,6 +23,7 @@ interface StepTwoProps {
   setAgreedTerms: (val: boolean) => void;
 
   successMessage: string;
+  setSuccessMessage: (val: string) => void;
 
   onNext: () => void;
   onBack: () => void;
@@ -49,6 +50,7 @@ export default function StepTwo({
   setAgreedTerms,
 
   successMessage,
+  setSuccessMessage,
 
   onNext,
   onBack,
@@ -112,6 +114,24 @@ export default function StepTwo({
     password.length > 0 &&
     password === confirmPassword;
 
+    const isAdult = () => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age >= 18;
+};
+
 
 
   const handleCaptchaSuccess = (token: string | null) => {
@@ -129,16 +149,21 @@ export default function StepTwo({
     e.preventDefault();
 
 
-    if(
-      !fullName ||
-      !dateOfBirth ||
-      !emailValid ||
-      !passwordValid ||
-      !passwordMatch ||
-      !agreedTerms
-    ){
-      return;
-    }
+  if(
+  !fullName ||
+  !dateOfBirth ||
+  !emailValid ||
+  !passwordValid ||
+  !passwordMatch ||
+  !agreedTerms
+){
+  return;
+}
+
+if(!isAdult()){
+  setSuccessMessage("You must be at least 18 years old to register.");
+  return;
+}
 
 
     setShowCaptcha(true);
@@ -650,7 +675,14 @@ export default function StepTwo({
 
 
 
-
+      {/* Message */}
+{successMessage && (
+  <div className="mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-400/30">
+    <p className="text-red-400 text-sm font-semibold text-center">
+      {successMessage}
+    </p>
+  </div>
+)}
 
 
       {/* Next Button */}

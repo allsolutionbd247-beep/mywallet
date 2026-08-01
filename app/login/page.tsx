@@ -109,8 +109,21 @@ if (res.ok) {
               Forgot your password?
             </Link>
           </div>
+<div className="mt-2 text-center">
+  <Link
+    href="/reset-security-pin"
+    className="text-sm text-emerald-400 hover:underline"
+  >
+    Reset Security PIN
+  </Link>
+</div>
+
         </div>
       </div>
+
+
+
+
 {/* Footer / Privacy & Compliance Notice */}
       <footer className="w-full max-w-4xl mx-auto text-center text-[11px] text-white/80 space-y-2 py-4 border-t border-white/15">
         <div className="flex flex-wrap justify-center gap-4 text-white/90 font-medium">

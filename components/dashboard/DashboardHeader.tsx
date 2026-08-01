@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { Bell, UserCircle, AlertTriangle, X } from "lucide-react";
 
+
+
 export default function DashboardHeader() {
 
   const [showNotice, setShowNotice] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
 
   return (
     <>
@@ -26,38 +29,37 @@ export default function DashboardHeader() {
         "
       >
 
-        {/* Profile */}
+       {/* Profile */}
+  <div
+  onClick={() => setShowProfile(!showProfile)}
+    className="
+      flex
+      items-center
+      gap-3
+      bg-white
+      px-3
+      py-2
+      rounded-full
+      shadow-sm
+      cursor-pointer
+      hover:bg-green-50
+      transition
+    "
+  >
+    <UserCircle
+      size={38}
+      className="text-green-600"
+    />
 
-        <div
-          className="
-            flex
-            items-center
-            gap-3
-            bg-white
-            px-3
-            py-2
-            rounded-full
-            shadow-sm
-          "
-        >
-
-          <UserCircle
-            size={38}
-            className="text-green-600"
-          />
-
-          <span
-            className="
-              font-semibold
-              text-gray-800
-            "
-          >
-            Rohim
-          </span>
-
-        </div>
-
-
+    <span
+      className="
+        font-semibold
+        text-gray-800
+      "
+    >
+      Rohim
+    </span>
+  </div>
 
         {/* Notification */}
 

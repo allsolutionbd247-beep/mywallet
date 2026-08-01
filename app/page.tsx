@@ -47,7 +47,7 @@ export default function Home() {
       {/* Security Section */}
       <section className="px-6 py-16 md:px-12 bg-[#064e3b]">
         <h2 className="text-center text-3xl font-bold">
-          Bank Level Security
+          Swift Bank Level Security
         </h2>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">

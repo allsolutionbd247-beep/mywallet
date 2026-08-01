@@ -5,8 +5,41 @@ import DashboardHeader from "./DashboardHeader";
 import DashboardWalletCards from "./DashboardWalletCards";
 import RecentTransactions from "./RecentTransactions";
 import DashboardFooter from "./DashboardFooter";
+import PinSetupCard from "../security/PinSetupCard";
+import PinLoginCard from "../security/PinLoginCard";
+import { useEffect, useState } from "react";
 
-export default function DashboardHome() {
+
+
+  export default function DashboardHome() {
+  const [showPinSetup, setShowPinSetup] = useState(true);
+  const [showPinLogin, setShowPinLogin] = useState(false);
+  const [checkingPin, setCheckingPin] = useState(true);
+  useEffect(() => {
+  const checkPinStatus = async () => {
+    try {
+      const res = await fetch("/api/security/pin-status");
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.pinCreated) {
+          setShowPinSetup(false);
+          setShowPinLogin(true);
+        } else {
+          setShowPinSetup(true);
+          setShowPinLogin(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCheckingPin(false);
+    }
+  };
+
+  checkPinStatus();
+}, []);
+
   return (
     <div className="min-h-screen flex flex-col">
 
@@ -66,6 +99,31 @@ export default function DashboardHome() {
 
             {/* Header */}
             <DashboardHeader />
+  
+  {!checkingPin && showPinSetup && (
+  <PinSetupCard
+    onSuccess={() => {
+      setShowPinSetup(false);
+      setShowPinLogin(true);
+    }}
+  />
+)}
+
+{!checkingPin && showPinLogin && (
+  <PinLoginCard
+    onSuccess={() => {
+      setShowPinLogin(false);
+    }}
+  />
+)}
+
+{showPinLogin && (
+  <PinLoginCard
+    onSuccess={() => {
+      setShowPinLogin(false);
+    }}
+  />
+)}
 
 
             {/* Wallet Cards */}

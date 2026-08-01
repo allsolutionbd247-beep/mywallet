@@ -51,7 +51,7 @@ console.log("EXISTING USER CHECK:", existingUser);
     if (existingUser) {
       return NextResponse.json(
         {
-          error: "User already exists",
+          error: "This email is already registered."
         },
         {
           status: 400,

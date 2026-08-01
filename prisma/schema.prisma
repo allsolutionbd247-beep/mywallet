@@ -9,8 +9,6 @@ datasource db {
 
 model User {
   id                 String              @id @default(cuid())
-  fullName      String?
-  dob           String?
   email              String              @unique
   phone              String?
   password           String
@@ -18,6 +16,18 @@ model User {
   accountStatus      String              @default("active")
   createdAt          DateTime            @default(now())
   currency           String              @default("BDT")
+  dob                String?
+  fullName           String?
+  pinHash            String?
+  pinCreated         Boolean             @default(false)
+  pinFailedAttempts  Int                 @default(0)
+  pinLockedUntil     DateTime?
+  passwordFailedAttempts Int @default(0)
+  passwordLockedUntil    DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  pinResetToken          String?
+  pinResetExpires        DateTime?
   kyc                KYC?
   profile            Profile?
   transactions       Transaction[]
@@ -35,13 +45,27 @@ model VerificationToken {
 }
 
 model WalletActivity {
-  id        String   @id @default(cuid())
-  userId    String
-  walletId  String
-  action    String
-  details   String?
+  id String @id @default(cuid())
+
+  userId String
+
+  walletId String
+
+  action String
+
+  details String?
+
+  amount Float @default(0)
+
+  balanceBefore Float @default(0)
+
+  balanceAfter Float @default(0)
+
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
 }
 
 model Profile {
@@ -63,26 +87,186 @@ model KYC {
 }
 
 model Wallet {
-  id        String   @id @default(cuid())
-  userId    String
-  walletId  String   @unique
-  currency  String
-  balance   Float    @default(0)
-  isPrimary Boolean  @default(false)
+  id String @id @default(cuid())
+
+  userId String
+
+  walletId String @unique
+
+  currency String
+
+  balance Float @default(0)
+
+  lockedBalance Float @default(0)
+
+  status String @default("active")
+
+  isPrimary Boolean @default(false)
+
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+
+  updatedAt DateTime @updatedAt
+
+  user             User             @relation(fields: [userId], references: [id])
+  walletActivities WalletActivity[]
 }
 
 model Transaction {
-  id               String   @id @default(cuid())
-  userId           String
-  senderWalletId   String
-  receiverWalletId String
-  token            String   @unique
-  type             String
-  amount           Float
-  currency         String
-  status           String   @default("completed")
-  createdAt        DateTime @default(now())
-  user             User     @relation(fields: [userId], references: [id])
+  id String @id @default(cuid())
+
+  userId String
+
+  senderWalletId   String?
+  receiverWalletId String?
+
+  token String @unique
+
+  type String
+
+  source String
+
+  amount Float
+
+  fee Float @default(0)
+
+  commission Float @default(0)
+
+  netAmount Float
+
+  currency String
+
+  reserveEffect String?
+
+  status String @default("pending")
+
+  description String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model CompanyReserve {
+  id String @id @default(cuid())
+
+  code String @unique
+
+  totalReserve Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyReserveHistory {
+  id String @id @default(cuid())
+
+  type   String
+  amount Float
+
+  action String
+
+  referenceId String?
+
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model Commission {
+  id String @id @default(cuid())
+
+  totalCommission Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommissionHistory {
+  id String @id @default(cuid())
+
+  type String
+
+  amount Float
+
+  action String
+
+  referenceId String?
+
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model SystemLedger {
+  id String @id @default(cuid())
+
+  totalWallets Float @default(0)
+
+  companyReserve Float @default(0)
+
+  commissionPool Float @default(0)
+
+  totalAssets Float @default(0)
+
+  status String @default("perfect_match")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model SystemProblem {
+  id String @id @default(cuid())
+
+  type String
+
+  title String
+
+  details String?
+
+  severity String @default("medium")
+
+  status String @default("open")
+
+  referenceId String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model ReserveTransaction {
+  id String @id @default(cuid())
+
+  type String
+
+  amount Float
+
+  source String
+
+  referenceId String?
+
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model CompanyReserveActivity {
+  id          String   @id @default(cuid())
+  type        String
+  amount      Float
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+
+model CommissionActivity {
+  id          String   @id @default(cuid())
+  type        String
+  amount      Float
+  description String?
+  createdAt   DateTime @default(now())
 }

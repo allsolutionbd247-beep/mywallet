@@ -27,8 +27,9 @@ export default function RegisterPage() {
   const [otpCode, setOtpCode] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-const [fullName, setFullName] = useState("");
-const [dateOfBirth, setDateOfBirth] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [error, setError] = useState("");
 
   const handleNextStep1 = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +62,9 @@ const handleNextStep2 = async () => {
           "Content-Type": "application/json",
         },
 
-       body: JSON.stringify({
+body: JSON.stringify({
+  fullName,
+  dob: dateOfBirth,
   email,
   password,
   currency,
@@ -292,6 +295,7 @@ const handleNextStep2 = async () => {
                   setAgreedTerms={setAgreedTerms}
 
                   successMessage={successMessage}
+                  setSuccessMessage={setSuccessMessage}
 
                   onNext={handleNextStep2}
 

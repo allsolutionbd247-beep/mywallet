@@ -20,11 +20,13 @@ export async function POST(req: Request) {
       );
     }
 
+
     const user = await prisma.user.findUnique({
       where: {
         email,
       },
     });
+
 
     if (!user) {
       return NextResponse.json(
@@ -37,21 +39,16 @@ export async function POST(req: Request) {
       );
     }
 
-    if (user.password !== password) {
-      return NextResponse.json(
-        {
-          error: "Invalid password",
-        },
-        {
-          status: 401,
-        }
-      );
-    }
 
-    if (!user.emailVerified) {
+    // Check password lock
+    if (
+      user.passwordLockedUntil &&
+      user.passwordLockedUntil > new Date()
+    ) {
       return NextResponse.json(
         {
-          error: "Please verify your email first",
+          error:
+            "Your account is locked for 24 hours. Please reset your password.",
         },
         {
           status: 403,
@@ -59,7 +56,96 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({
+
+    // Wrong password
+    if (user.password !== password) {
+      const attempts =
+        user.passwordFailedAttempts + 1;
+
+
+      if (attempts >= 3) {
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            passwordFailedAttempts: 3,
+            passwordLockedUntil: new Date(
+              Date.now() +
+                1000 *
+                  60 *
+                  60 *
+                  24
+            ),
+          },
+        });
+
+
+        return NextResponse.json(
+          {
+            error:
+              "Your account is locked for 24 hours. Please reset your password.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          passwordFailedAttempts: attempts,
+        },
+      });
+
+
+      return NextResponse.json(
+        {
+          error: `Invalid password. Remaining ${
+            3 - attempts
+          } attempts.,`
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+
+
+    // Email verification check
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        {
+          error:
+            "Please verify your email first.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+
+
+    // Reset failed attempts after successful login
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        passwordFailedAttempts: 0,
+        passwordLockedUntil: null,
+      },
+    });
+
+
+
+    const response = NextResponse.json({
       success: true,
       message: "Login successful",
       user: {
@@ -68,12 +154,36 @@ export async function POST(req: Request) {
       },
     });
 
+
+
+    response.cookies.set(
+      "userId",
+      user.id,
+      {
+        httpOnly: true,
+        sameSite: "lax",
+        secure:
+          process.env.NODE_ENV ===
+          "production",
+      }
+    );
+
+
+    return response;
+
+
   } catch (error) {
-    console.log(error);
+
+    console.log(
+      "LOGIN ERROR:",
+      error
+    );
+
 
     return NextResponse.json(
       {
-        error: "Server error",
+        error:
+          "Server error",
       },
       {
         status: 500,

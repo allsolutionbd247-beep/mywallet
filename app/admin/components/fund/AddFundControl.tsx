@@ -3,192 +3,203 @@
 import { useState } from "react";
 import {
   ChevronDown,
+  ChevronUp,
   Plus,
   Minus,
   Lock,
-  Unlock
+  Unlock,
+  Snowflake,
+  RefreshCcw,
+  DollarSign,
+  Building2,
+  Wallet,
 } from "lucide-react";
 
-
 export default function AddFundControl() {
-
   const [open, setOpen] = useState(false);
-  const [action, setAction] = useState("add");
+  const [selectedAction, setSelectedAction] = useState("increase");
 
+  const [walletId, setWalletId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
 
   const actions = [
     {
       name: "Increase Balance",
-      value: "add",
+      value: "increase",
       icon: Plus,
+      color: "bg-emerald-50 border-emerald-200 text-emerald-700",
     },
     {
       name: "Reduce Balance",
       value: "reduce",
       icon: Minus,
+      color: "bg-red-50 border-red-200 text-red-700",
     },
     {
       name: "Hold Balance",
       value: "hold",
       icon: Lock,
+      color: "bg-amber-50 border-amber-200 text-amber-700",
     },
     {
       name: "Release Hold",
       value: "release",
       icon: Unlock,
+      color: "bg-blue-50 border-blue-200 text-blue-700",
+    },
+    {
+      name: "ManagerFundRequest",
+      value: "Request Fund",
+      icon: Snowflake,
+      color: "bg-cyan-50 border-cyan-200 text-cyan-700",
+    },
+    {
+      name: "Refresh Balance",
+      value: "refresh",
+      icon: RefreshCcw,
+      color: "bg-slate-50 border-slate-200 text-slate-700",
+    },
+    {
+      name: "Commission Collected",
+      value: "commission",
+      icon: DollarSign,
+      color: "bg-purple-50 border-purple-200 text-purple-700",
+    },
+    {
+      name: "Reserve Transaction",
+      value: "reserve",
+      icon: Building2,
+      color: "bg-indigo-50 border-indigo-200 text-indigo-700",
     },
   ];
 
-
   return (
-
-    <div className="
-      bg-white
-      border
-      rounded-xl
-      shadow-sm
-    ">
-
+    <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
 
       {/* Header */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="
+          w-full
+          flex
+          justify-between
+          items-center
+          px-5
+          py-4
+          bg-gradient-to-r
+          from-emerald-100
+          to-blue-100
+          hover:shadow-md
+          transition-all
+        "
+      >
 
-     <button
-  onClick={() => setOpen(!open)}
-  className="
-    w-full
-    flex
-    justify-between
-    items-center
-    px-5
-    py-4
-    rounded-xl
-    bg-gradient-to-r
-    from-emerald-100
-    to-blue-100
-    text-gray-800
-    border
-    border-emerald-200
-    shadow-sm
-    hover:shadow-md
-    transition-all
-  "
->
+        <div className="flex items-center gap-3">
 
-  <div className="
-    flex
-    items-center
-    gap-3
-  ">
-
-    <div className="
-      w-10
-      h-10
-      rounded-lg
-      bg-emerald-200
-      flex
-      items-center
-      justify-center
-      text-emerald-700
-    ">
-      <Plus
-        size={22}
-      />
-    </div>
+          <div
+            className="
+              w-11
+              h-11
+              rounded-xl
+              bg-white
+              flex
+              items-center
+              justify-center
+              shadow-sm
+            "
+          >
+            <Wallet
+              size={24}
+              className="text-emerald-600"
+            />
+          </div>
 
 
-    <span className="
-      text-lg
-      font-bold
-    ">
-      Add Fund Control
-    </span>
+          <span className="text-lg font-bold text-gray-800">
+            Add Fund Control
+          </span>
 
-  </div>
+        </div>
 
 
-  <ChevronDown
-    className={`
-      text-gray-600
-      transition-transform
-      duration-300
-      ${open ? "rotate-180" : ""}
-    `}
-  />
+        {
+          open
+          ?
+          <ChevronUp size={22}/>
+          :
+          <ChevronDown size={22}/>
+        }
 
-</button>
-
+      </button>
 
 
 
       {
         open && (
 
-          <div className="
-            border-t
-            p-5
-          ">
+          <div className="p-5 border-t">
 
 
-            {/* Action */}
+            {/* Balance Action */}
 
-            <h3 className="
-              font-semibold
-              mb-3
-            ">
+            <h3 className="font-bold text-gray-800 mb-4">
               Balance Action
             </h3>
 
 
-            <div className="
-              grid
-              grid-cols-2
-              md:grid-cols-4
-              gap-3
-            ">
-
+            <div
+              className="
+                grid
+                grid-cols-2
+                md:grid-cols-4
+                gap-3
+              "
+            >
 
               {
                 actions.map((item)=>{
 
                   const Icon = item.icon;
 
-
                   return (
 
                     <button
-
                       key={item.value}
-
                       onClick={() =>
-                        setAction(item.value)
+                        setSelectedAction(item.value)
                       }
-
                       className={`
                         border
-                        rounded-lg
-                        p-3
+                        rounded-xl
+                        p-4
                         text-sm
-                        ${
-                          action === item.value
-                          ?
-                          "bg-blue-600 text-white"
-                          :
-                          "bg-gray-50"
-                        }
-                      `}
+                        font-semibold
+                        transition-all
 
+                        ${
+                          selectedAction === item.value
+                          ?
+                          "ring-2 ring-emerald-400 shadow-md"
+                          :
+                          ""
+                        }
+${item.color}
+                      `}
                     >
 
                       <Icon
-                        size={18}
-                        className="mx-auto mb-1"
+                        size={22}
+                        className="mx-auto mb-2"
                       />
+
 
                       {item.name}
 
+
                     </button>
 
-                  )
+                  );
 
                 })
               }
@@ -196,132 +207,216 @@ export default function AddFundControl() {
 
             </div>
 
+{/* Search User */}
 
-            {/* Search User */}
+            <div className="mt-8">
 
-            <div className="mt-5">
-
-
-              <label className="text-sm font-medium">
-                Wallet ID / Email
-              </label>
-
+              <h3 className="font-bold text-gray-800 mb-3">
+                Search User
+              </h3>
 
               <input
-
-                placeholder="Enter wallet ID or email"
-
+                value={walletId}
+                onChange={(e)=>setWalletId(e.target.value)}
+                placeholder="Enter Wallet ID or Email"
                 className="
-                  mt-2
                   w-full
+                  rounded-xl
                   border
-                  rounded-lg
-                  px-3
-                  py-2
+                  border-gray-300
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-emerald-400
                 "
-
               />
 
-
             </div>
 
 
 
+            {/* User Information */}
 
-            {/* Auto User Info */}
+            <div
+              className="
+                mt-6
+                rounded-2xl
+                border
+                bg-slate-50
+                p-5
+              "
+            >
 
-            <div className="
-              mt-4
-              bg-slate-50
-              rounded-lg
-              p-4
-            ">
+              <h3 className="font-bold mb-4 text-gray-800">
+                User Information
+              </h3>
 
 
-              <p>
-                User Name: Auto Loading
-              </p>
+              <div className="grid md:grid-cols-2 gap-4">
 
-              <p>
-                Wallet ID: Auto Loading
-              </p>
+                <div>
 
-              <p>
-                Primary Wallet: Auto Loading
-              </p>
+                  <p className="text-xs text-gray-500">
+                    User Name
+                  </p>
 
-              <p>
-                Currency: Auto Loading
-              </p>
+                  <p className="font-semibold">
+                    Auto Loading...
+                  </p>
 
+                </div>
+
+
+                <div>
+
+                  <p className="text-xs text-gray-500">
+                    Wallet ID
+                  </p>
+
+                  <p className="font-semibold">
+                    Auto Loading...
+                  </p>
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-xs text-gray-500">
+                    Wallet Type
+                  </p>
+
+                  <p className="font-semibold text-blue-600">
+                    Primary Wallet
+                  </p>
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-xs text-gray-500">
+                    Currency
+                  </p>
+
+                  <p className="font-semibold">
+                    USD
+                  </p>
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-xs text-gray-500">
+                    Previous Balance
+                  </p>
+
+                  <p className="font-semibold">
+                    $0.00
+                  </p>
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-xs text-gray-500">
+                    Available Balance
+                  </p>
+
+                  <p className="font-bold text-emerald-600">
+                    $0.00
+                  </p>
+
+                </div>
+
+              </div>
 
             </div>
-
-
 
 
 
             {/* Amount */}
 
-            <input
+            <div className="mt-6">
 
-              placeholder="Amount"
+              <label className="font-semibold text-gray-700">
+                Amount
+              </label>
 
-              type="number"
+              <input
+                value={amount}
+                onChange={(e)=>setAmount(e.target.value)}
+                type="number"
+                placeholder="Enter Amount"
+                className="
+                  mt-2
+                  w-full
+                  rounded-xl
+                  border
+                  border-gray-300
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-emerald-400
+                "
+              />
 
-              className="
-                mt-4
-                w-full
-                border
-                rounded-lg
-                px-3
-                py-2
-              "
-
-            />
+            </div>
 
 
 
+            {/* Admin Note */}
 
+            <div className="mt-6">
 
-            {/* Note */}
+              <label className="font-semibold text-gray-700">
+                Admin Note
+              </label>
 
-            <textarea
+              <textarea
+                value={note}
+                onChange={(e)=>setNote(e.target.value)}
+                placeholder="Write Admin Note..."
 
-              placeholder="Admin Note"
 className="
-                mt-4
-                w-full
-                border
-                rounded-lg
-                px-3
-                py-2
-                h-24
-              "
+                  mt-2
+                  w-full
+                  rounded-xl
+                  border
+                  border-gray-300
+                  px-4
+                  py-3
+                  h-28
+                  resize-none
+                  outline-none
+                  focus:ring-2
+                  focus:ring-emerald-400
+                "
+              />
+</div>
 
-            />
 
-
-
-
-
+            {/* Confirm Action */}
 
             <button
-
               className="
-                mt-4
+                mt-6
+                w-full
                 bg-emerald-600
+                hover:bg-emerald-700
                 text-white
-                px-6
+                font-bold
                 py-3
-                rounded-lg
-                font-semibold
+                rounded-xl
+                transition-all
+                shadow-md
               "
-
             >
-
               Confirm Action
-
             </button>
 
 
@@ -333,7 +428,5 @@ className="
 
 
     </div>
-
   );
-
 }
